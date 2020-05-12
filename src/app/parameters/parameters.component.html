@@ -19,6 +19,7 @@
                         (click)="ec2MultiMode = !ec2MultiMode">
                 </div>
                 <div *ngIf="ec2MultiMode">
+                    <p>To let the tool know more about your EC2 spending, please go to the AWS Cost Explorer, select the same time period as you did for the cost report, group by Instance Type and download the CSV.</p>
                     <app-report-uploader (content)="onInstanceUpload($event)"></app-report-uploader>
                     <table class="table" [hidden]="!ec2MultiModeInstanceDistribution">
                         <thead>
