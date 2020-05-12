@@ -1,7 +1,6 @@
-import { Component, NgZone, AfterViewInit, OnDestroy, OnChanges, OnInit, DoCheck } from "@angular/core";
+import { Component } from "@angular/core";
 import { DataPoint } from './graph/graph.component';
 import { CalculatorService } from './calculator.service';
-
 
 @Component({
   selector: 'app-root',
