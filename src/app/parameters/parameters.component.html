@@ -1,0 +1,104 @@
+<div class="row">
+    <div class="col">
+        <form>
+            <h2>Savings rates</h2>
+            <p>The default savings rates are for 1 year plans with no upfront payment. You can improve the rates by
+                picking a <a href="https://aws.amazon.com/savingsplans/pricing/" target="_blank">Savings Plan</a> with
+                more commitment.</p>
+            <div class="form-group">
+                <label for="ec2Saving">EC2 savings rate (applied first)</label>
+                <div class="input-group mb-3" id="ec2Wrapper">
+                    <input [disabled]="ec2MultiMode" style="max-width: 100px;" type="number" class="form-control"
+                        id="ec2Saving" aria-describedby="ec2InputDescription" name="ec2SavingsRate"
+                        [(ngModel)]="ec2SavingsRates[0].savingsRate" (ngModelChange)="valuesChanged = true">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="ec2InputDescription">% over on-demand</span>
+                    </div>
+                    <input type="button" class="ml-3 btn btn-outline-secondary"
+                        [value]="ec2MultiMode ? 'Switch to single rate' : 'Specify multiple'"
+                        (click)="ec2MultiMode = !ec2MultiMode">
+                </div>
+                <div *ngIf="ec2MultiMode">
+                    <app-report-uploader (content)="onInstanceUpload($event)"></app-report-uploader>
+                    <table class="table" [hidden]="!ec2MultiModeInstanceDistribution">
+                        <thead>
+                            <tr>
+                                <th scope="col">Instance Type</th>
+                                <th scope="col">Savings Rate</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr *ngFor="let rate of ec2SavingsRates">
+                                <td>{{rate.instanceType}}</td>
+                                <td><input type="number" name="{{rate.instanceType}}-rate"
+                                        [(ngModel)]="rate.savingsRate" (ngModelChange)="valuesChanged = true"></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <small id="ec2Wrapper" class="form-text text-muted">Please get the savings rate from the <a
+                        href="https://aws.amazon.com/savingsplans/pricing/" target="_blank">Savings Plan page</a>. 28%
+                    is a Linux
+                    t2.micro, 1 year with no upfront in us-east-1. As there is a huge variety of EC2 types, we do not
+                    differentiate here, but just assume the lowest savings rate applies to all.</small>
+            </div>
+            <div class="form-group">
+                <label for="fargateSaving">Fargate savings rate (applied second)</label>
+                <div class="input-group mb-3" id="fargateWrapper">
+                    <input style="max-width: 100px;" type="number" class="form-control" id="fargateSaving"
+                        aria-describedby="fargateInputDescription" name="fargateSavingsRate"
+                        [(ngModel)]="fargateSavingsRate" (ngModelChange)="valuesChanged = true">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="fargateInputDescription">% over on-demand</span>
+                    </div>
+                </div>
+                <small id="ec2Wrapper" class="form-text text-muted">Please get the savings rate from the <a
+                        href="https://aws.amazon.com/savingsplans/pricing/" target="_blank">Savings Plan page</a>. 20%
+                    is 1 year with no
+                    upfront payment in us-east-1.</small>
+            </div>
+            <div class="form-group">
+                <label for="lambdaSaving">Lambda savings rate (applied last)</label>
+                <div class="input-group mb-3" id="lambdaWrapper">
+                    <input style="max-width: 100px;" type="number" class="form-control" id="lambdaSaving"
+                        aria-describedby="lambdaInputDescription" name="lambdaSavingsRate"
+                        [(ngModel)]="lambdaSavingsRate" (ngModelChange)="valuesChanged = true">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="lambdaInputDescription">% over on-demand</span>
+                    </div>
+                </div>
+                <small id="lambdaWrapper" class="form-text text-muted">Please get your savings rate from the <a
+                        href="https://aws.amazon.com/savingsplans/pricing/" target="_blank">Savings Plan page</a>. 12%
+                    is 1 year with no
+                    upfront payment in us-east-1.</small>
+            </div>
+        </form>
+    </div>
+    <div class="col">
+        <h2>Hourly commitment</h2>
+        <form>
+            <div class="form-group">
+                <label for="hourlyCommitment">Hourly Commitment</label>
+                <div class="input-group mb-3" id="hourlyCommitmentWrapper">
+                    <input style="max-width: 100px;" type="number" class="form-control" id="hourlyCommitment"
+                        aria-describedby="hourlyCommitmentDescription" name="hourlyCommitment"
+                        [(ngModel)]="hourlyCommitment" (ngModelChange)="valuesChanged = true">
+                    <div class="input-group-append">
+                        <span class="input-group-text" id="hourlyCommitmentDescription">$ per hour</span>
+                    </div>
+                </div>
+                <small class="form-text text-muted" [hidden]="!hourlyCommitment">
+                    <span>Monthly commitment: {{hourlyCommitment * 24 * 30 | currency: 'USD'}}</span>
+                    <br />
+                    <span>Yearly commitment: {{hourlyCommitment * 24 * 365 | currency: 'USD'}}</span>
+                </small>
+            </div>
+        </form>
+        <div class="mt-5">
+            <input [disabled]="!valuesChanged" type="button" class="btn btn-primary" value="Redraw"
+                style="width: 100%" (click)="emitRedraw()">
+            <br />
+            <small>Change some values before you redraw the chart</small>
+        </div>
+
+    </div></div>
