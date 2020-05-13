@@ -1,27 +1,42 @@
-# Savingsplanner
+# Savings Planner for AWS
 
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 9.1.5.
+This tool helps you understand your potential savings with an AWS Savings Plan, based on your previous spending. It was primarily engineered for hobby serverless workloads and therefore does neither provide enterprise EC2 complexity, nor does it provide any official guidance.
 
-## Development server
+## FAQ
 
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+Q: Help! I have negative savings!
 
-## Code scaffolding
+A: Try lowering your hourly commitment. If you commit to more than you use, you spend more than you would without a savings plan. The app interprets this as overpay and reduces it from your saving. Note that this is an assumption about how savings plans work internally!
 
-Run `ng generate component component-name` to generate a new component. You can also use `ng generate directive|pipe|service|class|guard|interface|enum|module`.
+Q: How about hourly granularity?
 
-## Build
+A: Haven't used that yet and therefore have no data. Can definitely be added.
 
-Run `ng build` to build the project. The build artifacts will be stored in the `dist/` directory. Use the `--prod` flag for a production build.
+Q: How about multiple regions?
 
-## Running unit tests
+A: Not included, because that would have increased the complexity more than I wanted before launching V1. Should be possible.
 
-Run `ng test` to execute the unit tests via [Karma](https://karma-runner.github.io).
+Q: Why not pull data from the pricing API?
 
-## Running end-to-end tests
+A: I tried to keep the project lean to launch it quickly.
 
-Run `ng e2e` to execute the end-to-end tests via [Protractor](http://www.protractortest.org/).
+Q: What about free tiers?
 
-## Further help
+A: As far as I understand, free tiers are applied before the costs show up in the Cost Exporer. Therefore they are included.
 
-To get more help on the Angular CLI use `ng help` or go check out the [Angular CLI README](https://github.com/angular/angular-cli/blob/master/README.md).
+Q: I have very complex enterprise payloads that this tool can't handle.
+
+A: duckbillgroup.com can probably help you.
+
+## Inner Workings
+
+Here's how savings are calculated.
+
+1. Get a cost report. This report includes spending per service (e.g. EC2 and Lambda).
+2. Define some parameters. The default assumption is the lowest you would get with a savings plan for us-east-1. You can update the parameters based on your preferences.
+3. For every day of the cost report, first apply EC2, then Fargate and then Lambda. Apply services spending until you run out of hourly commitment.
+
+## Assumptions
+
+1. The hourly commitment is used up by first applying EC2, then Fargate, then Lambda. Within each, the highest savings rates are applied first.
+2. The hourly commitment is used per hour, and if you don't use it up, you spend more than you would without a savings plan.
