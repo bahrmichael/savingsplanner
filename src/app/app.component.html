@@ -1,12 +1,17 @@
 <div style="position: relative;" class="mb-3">
   <img style="max-height:300px; width:100%; object-fit: cover;" src="https://images.unsplash.com/photo-1567427017947-545c5f8d16ad?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=crop&w=2000&q=80">
   <div style="position: absolute; padding:20px; background: rgba(250, 250, 250, 0.8); bottom: 30%; width:100%">
-    <h1 style="padding-left: 15%">Savings Planner</h1>
+    <div style="padding-left: 15%">
+      <h1 >Savings Planner for AWS</h1>
+      <!-- <br/> -->
+      <small>Built by <a href="https://twitter.com/michabahr">Michael Bahr</a>. Discuss it on <a href="https://twitter.com/michabahr/status/1260511080801087490">Twitter</a>!</small>
+    </div>
+    
   </div>
 </div>
 <div class="container">
   <div class="row">
-    <p>This tool helps you understand your potential savings with an AWS Savings Plan. It was primarily engineered for hobby serverless workloads and therefore does neither provide enterprise EC2 complexity, nor does it provide any official guidance.</p>
+    <p>This tool helps you understand your potential savings with an AWS Savings Plan, based on your previous spending. It was primarily engineered for hobby serverless workloads and therefore does neither provide enterprise EC2 complexity, nor does it provide any official guidance.</p>
     <div class="alert alert-info">The cost report stays in your browser. The app does not send it anywhere. You can also use <a target="_blank" href="https://gist.github.com/bahrmichael/600b4471cff7179ab4b0bcac7e92f1d3">this example</a>.</div>
   </div>
   <div class="row">
@@ -26,7 +31,6 @@
     <div>
       <h2>Savings<span [hidden]="!totalSavings">: {{totalSavings | currency:'USD'}}</span></h2>
       <p>This chart shows you how a savings plan would have helped you over the period of your cost report. Red lines indicate that you would have committed to more than you used, blue lines show savings you gained from the improved rates.</p>
-      <div class="alert alert-warning">The graph below has only been tested with majorly serverless workloads. The app currently only supports one savings rate for EC2.</div>
       <!-- <div id="chartdiv" style="width: 100%; height: 500px"></div> -->
       <app-graph [hidden]="rendering" [data]="graphData" (onReady)="rendering = false"></app-graph>
       <div style="height: 500px"  *ngIf="rendering">
@@ -42,36 +46,14 @@
   <div class="row">
     <app-parameters *ngIf="graphData" [lines]="lines" (onRedraw)="redraw($event)"></app-parameters>
   </div>
+  <footer>
+    <hr/>
+    <small>This project is <a href="https://github.com/bahrmichael/savingsplanner">open source</a> under the MIT license</small>
+  </footer>
 </div>
 
 
 <div class="modal fade" id="exampleModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
-  <div class="modal-dialog" role="document">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h5 class="modal-title" id="exampleModalLabel">How to get a cost report</h5>
-        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-          <span aria-hidden="true">&times;</span>
-        </button>
-      </div>
-      <div class="modal-body">
-        <p>You can export cost reports if you've been using the AWS Cost Explorer for a while. If you have't used it yet, then <a target="_blank" href="https://docs.aws.amazon.com/awsaccountbilling/latest/aboutv2/ce-enable.html">activate the Cost Explorer</a> and come back in a couple days.</p>
-        <ol>
-          <li>Open the AWS Cost Explorer</li>
-          <li>Selected the granularity Daily</li>
-          <li>Increase the time range as much as possible (e.g. 1 year)</li>
-          <li>Optional, but recommended: Filter to only EC2 and Lambda</li>
-          <li>Click on Download CSV</li>
-        </ol>
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-primary" data-dismiss="modal">Close</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<div class="modal fade" id="ec2RatesModal" tabindex="-1" role="dialog" aria-labelledby="ec2RateslModalLabel" aria-hidden="true">
   <div class="modal-dialog" role="document">
     <div class="modal-content">
       <div class="modal-header">

@@ -19,7 +19,7 @@
                         (click)="ec2MultiMode = !ec2MultiMode">
                 </div>
                 <div *ngIf="ec2MultiMode">
-                    <p>To let the tool know more about your EC2 spending, please go to the AWS Cost Explorer, select the same time period as you did for the cost report, group by Instance Type and download the CSV.</p>
+                    <p>To specify multiple EC2 savings rates, we first need to know how much you spent per instance type. Please go to the AWS Cost Explorer, select the same time period as you did for the cost report, group by Instance Type, download the CSV and upload it here.</p>
                     <app-report-uploader (content)="onInstanceUpload($event)"></app-report-uploader>
                     <table class="table" [hidden]="!ec2MultiModeInstanceDistribution">
                         <thead>
@@ -40,8 +40,7 @@
                 <small id="ec2Wrapper" class="form-text text-muted">Please get the savings rate from the <a
                         href="https://aws.amazon.com/savingsplans/pricing/" target="_blank">Savings Plan page</a>. 28%
                     is a Linux
-                    t2.micro, 1 year with no upfront in us-east-1. As there is a huge variety of EC2 types, we do not
-                    differentiate here, but just assume the lowest savings rate applies to all.</small>
+                    t2.micro, 1 year with no upfront in us-east-1. Unless you specify multiple EC2 rates, this rate is applied to all EC2 spending.</small>
             </div>
             <div class="form-group">
                 <label for="fargateSaving">Fargate savings rate (applied second)</label>
