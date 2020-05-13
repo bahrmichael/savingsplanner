@@ -28,6 +28,9 @@ export class CalculatorService {
   }
 
   public calc(rows: string[], hourlyCommitment: number, rates: any, ec2Distribution: any = null, allInstanceTypes: any = null): DataPoint[] {
+    if (!rows || rows.length < 3) {
+      return [];
+    }
     const indices = this.getIndices(rows[0].split(','))
 
     // sort from highest to lowest
@@ -62,8 +65,6 @@ export class CalculatorService {
       const rateIndex = allInstanceTypes.indexOf(instanceType);
       if (rateIndex != -1) {
         const instanceMaxSpend = spendingDistribution[rateIndex] / 24;
-        console.log('instanceMaxSpend', instanceMaxSpend);
-
         spending = instanceMaxSpend < spending ? instanceMaxSpend : spending;
       }
     }
@@ -71,37 +72,41 @@ export class CalculatorService {
   }
 
 
-  calcRow(hourlyCommitment: number, spending: any, rates: any, ec2SpendingDistribution: any, allInstanceTypes: any) {
-    // console.log('calc input', spending, ec2SpendingDistribution, hourlyCommitment);
-
+  calcRow(hourlyCommitment: number, spending: any, rates: any, ec2SpendingDistribution?: any, allInstanceTypes?: any) {
     const rowSaving = { ec2: 0, fargate: 0, lambda: 0, overpay: 0 }
     let remainingCommitment: number = hourlyCommitment;
-    for (const ec2Rate of rates.ec2) {
-      let instanceSpend = this.getInstanceSpending(ec2Rate.instanceType, spending.ec2, ec2SpendingDistribution, allInstanceTypes);
-      rowSaving.ec2 += this.getServiceSavings(instanceSpend, ec2Rate.savingsRate, remainingCommitment);
-      remainingCommitment -= instanceSpend;
+    if (spending.ec2) {
+      for (const ec2Rate of rates.ec2) {
+        let instanceSpend = this.getInstanceSpending(ec2Rate.instanceType, spending.ec2, ec2SpendingDistribution, allInstanceTypes);
+        rowSaving.ec2 += this.getRemainingSavings(instanceSpend, ec2Rate.savingsRate, remainingCommitment);
+        remainingCommitment -= instanceSpend;
+        if (remainingCommitment <= 0) {
+          return rowSaving;
+        }
+      }
+    }
+    
+    if (spending.fargate) {
+      rowSaving.fargate = this.getRemainingSavings(spending.fargate, rates.fargate, remainingCommitment);
+      remainingCommitment -= spending.fargate;
       if (remainingCommitment <= 0) {
         return rowSaving;
       }
     }
     
-    rowSaving.fargate = this.getServiceSavings(spending.fargate, rates.fargate, remainingCommitment);
-    remainingCommitment -= spending.fargate;
-    if (remainingCommitment <= 0) {
-      return rowSaving;
-    }
-    
-    rowSaving.lambda = this.getServiceSavings(spending.lambda, rates.lambda, remainingCommitment);
-    remainingCommitment -= spending.lambda;
-    if (remainingCommitment <= 0) {
-      return rowSaving;
+    if (spending.lambda) {
+      rowSaving.lambda = this.getRemainingSavings(spending.lambda, rates.lambda, remainingCommitment);
+      remainingCommitment -= spending.lambda;
+      if (remainingCommitment <= 0) {
+        return rowSaving;
+      }
     }
 
-    return { ...rowSaving, 'overpay': remainingCommitment * 24 };
+    return { ...rowSaving, overpay: remainingCommitment * 24 };
   }
 
 
-  getServiceSavings(spendingPerHour: number, rate: number, remainingCommitment: number) {
+  getRemainingSavings(spendingPerHour: number, rate: number, remainingCommitment: number) {
     if (spendingPerHour >= remainingCommitment) {
       return this.getSavings(remainingCommitment, rate);
     } else {
